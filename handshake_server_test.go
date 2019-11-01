@@ -1171,22 +1171,6 @@ func TestHandshakeServerRSAPSS(t *testing.T) {
 	runServerTestTLS13(t, test)
 }
 
-func TestHandshakeServerEd25519(t *testing.T) {
-	config := testConfig.Clone()
-	config.Certificates = make([]Certificate, 1)
-	config.Certificates[0].Certificate = [][]byte{testEd25519Certificate}
-	config.Certificates[0].PrivateKey = testEd25519PrivateKey
-	config.BuildNameToCertificate()
-
-	test := &serverTest{
-		name:    "Ed25519",
-		command: []string{"openssl", "s_client", "-no_ticket"},
-		config:  config,
-	}
-	runServerTestTLS12(t, test)
-	runServerTestTLS13(t, test)
-}
-
 func benchmarkHandshakeServer(b *testing.B, version uint16, cipherSuite uint16, curve CurveID, cert []byte, key crypto.PrivateKey) {
 	config := testConfig.Clone()
 	config.CipherSuites = []uint16{cipherSuite}
@@ -1296,7 +1280,7 @@ func BenchmarkHandshakeServer(b *testing.B) {
 }
 
 func TestClientAuth(t *testing.T) {
-	var certPath, keyPath, ecdsaCertPath, ecdsaKeyPath, ed25519CertPath, ed25519KeyPath string
+	var certPath, keyPath, ecdsaCertPath, ecdsaKeyPath string
 
 	if *update {
 		certPath = tempFile(clientCertificatePEM)
@@ -1307,10 +1291,6 @@ func TestClientAuth(t *testing.T) {
 		defer os.Remove(ecdsaCertPath)
 		ecdsaKeyPath = tempFile(clientECDSAKeyPEM)
 		defer os.Remove(ecdsaKeyPath)
-		ed25519CertPath = tempFile(clientEd25519CertificatePEM)
-		defer os.Remove(ed25519CertPath)
-		ed25519KeyPath = tempFile(clientEd25519KeyPEM)
-		defer os.Remove(ed25519KeyPath)
 	} else {
 		t.Parallel()
 	}
@@ -1349,16 +1329,6 @@ func TestClientAuth(t *testing.T) {
 			"-cert", ecdsaCertPath, "-key", ecdsaKeyPath},
 		config:            config,
 		expectedPeerCerts: []string{clientECDSACertificatePEM},
-	}
-	runServerTestTLS12(t, test)
-	runServerTestTLS13(t, test)
-
-	test = &serverTest{
-		name: "ClientAuthRequestedAndEd25519Given",
-		command: []string{"openssl", "s_client", "-no_ticket",
-			"-cert", ed25519CertPath, "-key", ed25519KeyPath},
-		config:            config,
-		expectedPeerCerts: []string{clientEd25519CertificatePEM},
 	}
 	runServerTestTLS12(t, test)
 	runServerTestTLS13(t, test)

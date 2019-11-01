@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"crypto"
 	"crypto/ecdsa"
-	"crypto/ed25519"
 	"crypto/rsa"
 	"crypto/subtle"
 	"crypto/x509"
@@ -851,7 +850,7 @@ func (c *Conn) verifyServerCertificate(certificates [][]byte) error {
 	}
 
 	switch certs[0].PublicKey.(type) {
-	case *rsa.PublicKey, *ecdsa.PublicKey, ed25519.PublicKey:
+	case *rsa.PublicKey, *ecdsa.PublicKey:
 		break
 	default:
 		c.sendAlert(alertUnsupportedCertificate)
@@ -909,7 +908,7 @@ func certificateRequestInfoFromMsg(certReq *certificateRequestMsg) *CertificateR
 	cri.SignatureSchemes = make([]SignatureScheme, 0, len(certReq.supportedSignatureAlgorithms))
 	for _, sigScheme := range certReq.supportedSignatureAlgorithms {
 		switch signatureFromSignatureScheme(sigScheme) {
-		case signatureECDSA, signatureEd25519:
+		case signatureECDSA:
 			if ecAvail {
 				cri.SignatureSchemes = append(cri.SignatureSchemes, sigScheme)
 			}

@@ -7,7 +7,6 @@ package qtls
 import (
 	"crypto"
 	"crypto/ecdsa"
-	"crypto/ed25519"
 	"crypto/rsa"
 	"crypto/subtle"
 	"crypto/x509"
@@ -268,8 +267,6 @@ Curves:
 	if priv, ok := hs.cert.PrivateKey.(crypto.Signer); ok {
 		switch priv.Public().(type) {
 		case *ecdsa.PublicKey:
-			hs.ecSignOk = true
-		case ed25519.PublicKey:
 			hs.ecSignOk = true
 		case *rsa.PublicKey:
 			hs.rsaSignOk = true
@@ -759,7 +756,7 @@ func (c *Conn) processCertsFromClient(certificate Certificate) error {
 	}
 
 	switch certs[0].PublicKey.(type) {
-	case *ecdsa.PublicKey, *rsa.PublicKey, ed25519.PublicKey:
+	case *ecdsa.PublicKey, *rsa.PublicKey:
 	default:
 		c.sendAlert(alertUnsupportedCertificate)
 		return fmt.Errorf("tls: client's certificate contains an unsupported public key of type %T", certs[0].PublicKey)

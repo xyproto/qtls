@@ -6,14 +6,12 @@ package qtls
 
 import (
 	"crypto"
-	"crypto/ed25519"
 	"testing"
 )
 
 func TestSignatureSelection(t *testing.T) {
 	rsaCert := &testRSAPrivateKey.PublicKey
 	ecdsaCert := &testECDSAPrivateKey.PublicKey
-	ed25519Cert := testEd25519PrivateKey.Public().(ed25519.PublicKey)
 	sigsPKCS1WithSHA := []SignatureScheme{PKCS1WithSHA256, PKCS1WithSHA1}
 	sigsPSSWithSHA := []SignatureScheme{PSSWithSHA256, PSSWithSHA384}
 	sigsECDSAWithSHA := []SignatureScheme{ECDSAWithP256AndSHA256, ECDSAWithSHA1}
@@ -58,10 +56,6 @@ func TestSignatureSelection(t *testing.T) {
 		// RSASSA-PSS is defined in TLS 1.3 for TLS 1.2
 		// https://tools.ietf.org/html/draft-ietf-tls-tls13-21#page-45
 		{rsaCert, []SignatureScheme{PSSWithSHA256}, sigsPSSWithSHA, VersionTLS12, PSSWithSHA256, signatureRSAPSS, crypto.SHA256},
-
-		// All results are fixed for Ed25519. RFC 8422, Section 5.10.
-		{ed25519Cert, []SignatureScheme{Ed25519}, []SignatureScheme{ECDSAWithSHA1, Ed25519}, VersionTLS12, Ed25519, signatureEd25519, directSigning},
-		{ed25519Cert, nil, nil, VersionTLS12, Ed25519, signatureEd25519, directSigning},
 	}
 
 	for testNo, test := range tests {
@@ -90,12 +84,6 @@ func TestSignatureSelection(t *testing.T) {
 		{ecdsaCert, sigsPKCS1WithSHA, sigsPKCS1WithSHA, VersionTLS12},
 		{ecdsaCert, sigsECDSAWithSHA, sigsPKCS1WithSHA, VersionTLS12},
 		{rsaCert, []SignatureScheme{0}, sigsPKCS1WithSHA, VersionTLS12},
-		{ed25519Cert, sigsECDSAWithSHA, sigsECDSAWithSHA, VersionTLS12},
-		{ed25519Cert, []SignatureScheme{Ed25519}, sigsECDSAWithSHA, VersionTLS12},
-		{ecdsaCert, []SignatureScheme{Ed25519}, []SignatureScheme{Ed25519}, VersionTLS12},
-		{ed25519Cert, nil, nil, VersionTLS11},
-		{ed25519Cert, nil, nil, VersionTLS10},
-		{ed25519Cert, nil, nil, VersionSSL30},
 
 		// ECDSA is unspecified for SSL 3.0 in RFC 4492.
 		// TODO a SSL 3.0 client cannot advertise signature_algorithms,

@@ -129,7 +129,7 @@ type clientTest struct {
 	// cert, if not empty, contains a DER-encoded certificate for the
 	// reference server.
 	cert []byte
-	// key, if not nil, contains either a *rsa.PrivateKey, ed25519.PrivateKey or
+	// key, if not nil, contains either a *rsa.PrivateKey or
 	// *ecdsa.PrivateKey which is the private key for the reference server.
 	key interface{}
 	// extensions, if not nil, contains a list of extension data to be returned
@@ -723,29 +723,6 @@ func TestHandshakeClientECDSATLS13(t *testing.T) {
 		cert: testECDSACertificate,
 		key:  testECDSAPrivateKey,
 	}
-	runClientTestTLS13(t, test)
-}
-
-func TestHandshakeClientEd25519(t *testing.T) {
-	test := &clientTest{
-		name: "Ed25519",
-		cert: testEd25519Certificate,
-		key:  testEd25519PrivateKey,
-	}
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
-
-	config := testConfig.Clone()
-	cert, _ := X509KeyPair([]byte(clientEd25519CertificatePEM), []byte(clientEd25519KeyPEM))
-	config.Certificates = []Certificate{cert}
-
-	test = &clientTest{
-		name:   "ClientCert-Ed25519",
-		args:   []string{"-Verify", "1"},
-		config: config,
-	}
-
-	runClientTestTLS12(t, test)
 	runClientTestTLS13(t, test)
 }
 
