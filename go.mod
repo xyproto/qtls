@@ -1,6 +1,6 @@
-module github.com/marten-seemann/qtls
+module github.com/xyproto/qtls
 
-go 1.13
+go 1.11
 
 require (
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472
