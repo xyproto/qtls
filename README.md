@@ -5,4 +5,4 @@ This is a modified version of the TLS 1.3 library [qtls](https://godoc.org/githu
 Support for "crypto/ed25519" has been removed.
 
 * License: MIT
-* Version: 1.0.0
+* Version: 1.0.1
